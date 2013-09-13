@@ -28,7 +28,8 @@ module Geokit
 
         provider_order.each do |provider|
           begin
-            klass = Geokit::Geocoders.const_get "#{Geokit::Inflector::camelize(provider.to_s)}Geocoder"
+            geocoder_name = (provider == :google3) ? 'GoogleGeocoder3' : geocoder_name = "#{Geokit::Inflector::camelize(provider.to_s)}Geocoder"
+            klass = Geokit::Geocoders.const_get(geocoder_name)
             res = klass.send :geocode, address, options
             return res if res.success?
           rescue => e
@@ -45,7 +46,8 @@ module Geokit
       def self.do_reverse_geocode(latlng)
         Geokit::Geocoders::provider_order.each do |provider|
           begin
-            klass = Geokit::Geocoders.const_get "#{Geokit::Inflector::camelize(provider.to_s)}Geocoder"
+            geocoder_name = (provider == :google3) ? 'GoogleGeocoder3' : geocoder_name = "#{Geokit::Inflector::camelize(provider.to_s)}Geocoder"
+            klass = Geokit::Geocoders.const_get(geocoder_name)
             res = klass.send :reverse_geocode, latlng
             return res if res.success?
           rescue => e

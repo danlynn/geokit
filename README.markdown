@@ -115,7 +115,7 @@ If you're using this gem by itself, here are the configuration options:
 
     # This is the order in which the geocoders are called in a failover scenario
     # If you only want to use a single geocoder, put a single symbol in the array.
-    # Valid symbols are :google, :yahoo, :us, and :ca.
+    # Valid symbols are :google, :google3, :yahoo, :us, and :ca.
     # Be aware that there are Terms of Use restrictions on how you can use the
     # various geocoders.  Make sure you read up on relevant Terms of Use for each
     # geocoder you are going to use.
