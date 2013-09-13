@@ -3,6 +3,10 @@ require 'rake/testtask'
 
 #task :default => :test
 
+task :default do
+  puts "=== skipping rake task ==="
+end
+
 Rake::TestTask.new do |t|
   t.libs << "test"
   t.test_files = FileList['test/test*.rb']
