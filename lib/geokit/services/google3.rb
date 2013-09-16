@@ -5,6 +5,7 @@ module Geokit
       private
       # Template method which does the reverse-geocode lookup.
       def self.do_reverse_geocode(latlng)
+        puts "=== @@total_reverse_geocodes: #{@@total_reverse_geocodes = @@total_reverse_geocodes + 1 rescue 0}"
         latlng=LatLng.normalize(latlng)
         submit_url = submit_url("/maps/api/geocode/json?sensor=false&latlng=#{Geokit::Inflector::url_escape(latlng.ll)}")
         res = self.call_geocoder_service(submit_url)
@@ -40,9 +41,11 @@ module Geokit
       # bounds = Geokit::Bounds.normalize([34.074081, -118.694401], [34.321129, -118.399487])
       # Geokit::Geocoders::GoogleGeocoder.geocode('Winnetka', :bias => bounds).state # => 'CA'
       def self.do_geocode(address, options = {})
+        puts "=== @@total_geocodes: #{@@total_geocodes = @@total_geocodes + 1 rescue 0}"
+        user_ip = options[:user_ip] ? "&userIp=#{options[:user_ip]}" : ''
         bias_str = options[:bias] ? construct_bias_string_from_options(options[:bias]) : ''
         address_str = address.is_a?(GeoLoc) ? address.to_geocodeable_s : address
-        submit_url = submit_url("/maps/api/geocode/json?sensor=false&address=#{Geokit::Inflector::url_escape(address_str)}#{bias_str}")
+        submit_url = submit_url("/maps/api/geocode/json?sensor=false&address=#{Geokit::Inflector::url_escape(address_str)}#{bias_str}#{user_ip}")
 
         res = self.call_geocoder_service(submit_url)
         return GeoLoc.new if !res.is_a?(Net::HTTPSuccess)
@@ -71,9 +74,13 @@ module Geokit
         if !Geokit::Geocoders::google_client_id.nil? and !Geokit::Geocoders::google_cryptographic_key.nil?
           urlToSign = query_string + "&client=#{Geokit::Geocoders::google_client_id}" + "#{(!Geokit::Geocoders::google_channel.nil? ? ("&channel="+ Geokit::Geocoders::google_channel) : "")}"
           signature = sign_gmap_bus_api_url(urlToSign, Geokit::Geocoders::google_cryptographic_key)
-          "http://maps.googleapis.com" + urlToSign + "&signature=#{signature}"
+          url = "http://maps.googleapis.com" + urlToSign + "&signature=#{signature}"
+          puts "=== submit_url(): #{url}"
+          url
         else
-          "http://maps.google.com" + query_string
+          url = "http://maps.google.com" + query_string
+          puts "=== submit_url(): #{url}"
+          url
         end
       end
 
@@ -98,6 +105,7 @@ module Geokit
         end
         # this should probably be smarter.
         if results['status'] != 'OK'
+          puts "=== GeocodeError: #{json.inspect}"
           raise Geokit::Geocoders::GeocodeError
         end
 
